@@ -29,6 +29,7 @@ contract CToken is CTokenInterface, Exponential, TokenErrorReporter {
                         string memory name_,
                         string memory symbol_,
                         uint8 decimals_) public {
+        admin = msg.sender; // TODO: How does this get set up?
         require(msg.sender == admin, "only admin may initialize the market");
         require(accrualBlockNumber == 0 && borrowIndex == 0, "market may only be initialized once");
 
