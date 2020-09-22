@@ -1,15 +1,15 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../../contracts/Timelock.sol";
 
 contract TimelockCertora is Timelock {
     constructor(address admin_, uint256 delay_) public Timelock(admin_, delay_) {}
 
-    function grace() pure public returns(uint256) {
+    function grace() pure public virtual returns(uint256) {
         return GRACE_PERIOD;
     }
 
-    function queueTransactionStatic(address target, uint256 value, uint256 eta) public returns (bytes32) {
+    function queueTransactionStatic(address target, uint256 value, uint256 eta) public virtual returns (bytes32) {
         return queueTransaction(target, value, "setCounter()", "", eta);
     }
 

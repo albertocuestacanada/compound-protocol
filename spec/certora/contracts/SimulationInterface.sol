@@ -1,5 +1,5 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
-interface SimulationInterface {
-    function dummy() external;
+abstract contract SimulationInterface {
+    function dummy() public;
 }

@@ -1,7 +1,7 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
-interface IComptroller {
-	function refreshCompSpeeds() external;
+abstract contract IComptroller {
+	function refreshCompSpeeds() public;
 }
 
 contract RefreshSpeedsProxy {

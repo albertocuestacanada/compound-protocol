@@ -1,15 +1,15 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../../contracts/PriceOracle.sol";
 
 contract PriceOracleModel is PriceOracle {
     uint dummy;
 
-    function isPriceOracle() external pure returns (bool) {
+    function isPriceOracle() public pure returns (bool) {
         return true;
     }
 
-    function getUnderlyingPrice(CToken cToken) external view returns (uint) {
+    function getUnderlyingPrice(CToken cToken) public virtual view returns (uint) {
         return dummy;
     }
 }

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 contract WETH9 {
     string public name     = "Wrapped Ether";
@@ -29,7 +29,7 @@ contract WETH9 {
     mapping (address => uint)                       public  balanceOf;
     mapping (address => mapping (address => uint))  public  allowance;
 
-    function() external payable {
+    fallback() external payable {
         deposit();
     }
     function deposit() public payable {
@@ -43,17 +43,17 @@ contract WETH9 {
         emit Withdrawal(msg.sender, wad);
     }
 
-    function totalSupply() public view returns (uint) {
+    function totalSupply() public virtual view returns (uint) {
         return address(this).balance;
     }
 
-    function approve(address guy, uint wad) public returns (bool) {
+    function approve(address guy, uint wad) public virtual returns (bool) {
         allowance[msg.sender][guy] = wad;
         emit Approval(msg.sender, guy, wad);
         return true;
     }
 
-    function transfer(address dst, uint wad) public returns (bool) {
+    function transfer(address dst, uint wad) public virtual returns (bool) {
         return transferFrom(msg.sender, dst, wad);
     }
 

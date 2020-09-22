@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 contract Comp {
@@ -71,7 +71,7 @@ contract Comp {
      * @param spender The address of the account spending the funds
      * @return The number of tokens approved
      */
-    function allowance(address account, address spender) external view returns (uint) {
+    function allowance(address account, address spender) public virtual view returns (uint) {
         return allowances[account][spender];
     }
 
@@ -83,7 +83,7 @@ contract Comp {
      * @param rawAmount The number of tokens that are approved (2^256-1 means infinite)
      * @return Whether or not the approval succeeded
      */
-    function approve(address spender, uint rawAmount) external returns (bool) {
+    function approve(address spender, uint rawAmount) public virtual returns (bool) {
         uint96 amount;
         if (rawAmount == uint(-1)) {
             amount = uint96(-1);
@@ -102,7 +102,7 @@ contract Comp {
      * @param account The address of the account to get the balance of
      * @return The number of tokens held
      */
-    function balanceOf(address account) external view returns (uint) {
+    function balanceOf(address account) public virtual view returns (uint) {
         return balances[account];
     }
 
@@ -112,7 +112,7 @@ contract Comp {
      * @param rawAmount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
      */
-    function transfer(address dst, uint rawAmount) external returns (bool) {
+    function transfer(address dst, uint rawAmount) public virtual returns (bool) {
         uint96 amount = safe96(rawAmount, "Comp::transfer: amount exceeds 96 bits");
         _transferTokens(msg.sender, dst, amount);
         return true;
@@ -125,7 +125,7 @@ contract Comp {
      * @param rawAmount The number of tokens to transfer
      * @return Whether or not the transfer succeeded
      */
-    function transferFrom(address src, address dst, uint rawAmount) external returns (bool) {
+    function transferFrom(address src, address dst, uint rawAmount) public virtual returns (bool) {
         address spender = msg.sender;
         uint96 spenderAllowance = allowances[src][spender];
         uint96 amount = safe96(rawAmount, "Comp::approve: amount exceeds 96 bits");
@@ -174,7 +174,7 @@ contract Comp {
      * @param account The address to get votes balance
      * @return The number of current votes for `account`
      */
-    function getCurrentVotes(address account) external view returns (uint96) {
+    function getCurrentVotes(address account) public virtual view returns (uint96) {
         uint32 nCheckpoints = numCheckpoints[account];
         return nCheckpoints > 0 ? checkpoints[account][nCheckpoints - 1].votes : 0;
     }
@@ -186,7 +186,7 @@ contract Comp {
      * @param blockNumber The block number to get the vote balance at
      * @return The number of votes the account had as of the given block
      */
-    function getPriorVotes(address account, uint blockNumber) public view returns (uint96) {
+    function getPriorVotes(address account, uint blockNumber) public virtual view returns (uint96) {
         require(blockNumber < block.number, "Comp::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];

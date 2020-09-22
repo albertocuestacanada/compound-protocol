@@ -1,11 +1,11 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/CErc20.sol";
 import "../../contracts/CToken.sol";
 import "../../contracts/PriceOracle.sol";
 
-interface V1PriceOracleInterface {
-    function assetPrices(address asset) external view returns (uint);
+abstract contract V1PriceOracleInterface {
+    function assetPrices(address asset) public virtual view returns (uint);
 }
 
 contract PriceOracleProxy is PriceOracle {
@@ -73,7 +73,7 @@ contract PriceOracleProxy is PriceOracle {
      * @param cToken The cToken to get the underlying price of
      * @return The underlying asset price mantissa (scaled by 1e18)
      */
-    function getUnderlyingPrice(CToken cToken) public view returns (uint) {
+    function getUnderlyingPrice(CToken cToken) public virtual view returns (uint) {
         address cTokenAddress = address(cToken);
 
         if (cTokenAddress == cEthAddress) {

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/CErc20Immutable.sol";
 import "../../contracts/CErc20Delegator.sol";
@@ -36,14 +36,14 @@ contract CErc20Harness is CErc20Immutable {
         return super.doTransferOut(to, amount);
     }
 
-    function exchangeRateStoredInternal() internal view returns (MathError, uint) {
+    function exchangeRateStoredInternal() internal virtual view returns (MathError, uint) {
         if (harnessExchangeRateStored) {
             return (MathError.NO_ERROR, harnessExchangeRate);
         }
         return super.exchangeRateStoredInternal();
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         return blockNumber;
     }
 
@@ -63,7 +63,7 @@ contract CErc20Harness is CErc20Immutable {
         blockNumber += blocks;
     }
 
-    function harnessSetBalance(address account, uint amount) external {
+    function harnessSetBalance(address account, uint amount) public {
         accountTokens[account] = amount;
     }
 
@@ -94,16 +94,16 @@ contract CErc20Harness is CErc20Immutable {
         failTransferToAddresses[_to] = _fail;
     }
 
-    function harnessMintFresh(address account, uint mintAmount) public returns (uint) {
+    function harnessMintFresh(address account, uint mintAmount) public virtual returns (uint) {
         (uint err,) = super.mintFresh(account, mintAmount);
         return err;
     }
 
-    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public returns (uint) {
+    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public virtual returns (uint) {
         return super.redeemFresh(account, cTokenAmount, underlyingAmount);
     }
 
-    function harnessAccountBorrows(address account) public view returns (uint principal, uint interestIndex) {
+    function harnessAccountBorrows(address account) public virtual view returns (uint principal, uint interestIndex) {
         BorrowSnapshot memory snapshot = accountBorrows[account];
         return (snapshot.principal, snapshot.interestIndex);
     }
@@ -116,29 +116,29 @@ contract CErc20Harness is CErc20Immutable {
         borrowIndex = borrowIndex_;
     }
 
-    function harnessBorrowFresh(address payable account, uint borrowAmount) public returns (uint) {
+    function harnessBorrowFresh(address payable account, uint borrowAmount) public virtual returns (uint) {
         return borrowFresh(account, borrowAmount);
     }
 
-    function harnessRepayBorrowFresh(address payer, address account, uint repayAmount) public returns (uint) {
+    function harnessRepayBorrowFresh(address payer, address account, uint repayAmount) public virtual returns (uint) {
         (uint err,) = repayBorrowFresh(payer, account, repayAmount);
         return err;
     }
 
-    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public returns (uint) {
+    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public virtual returns (uint) {
         (uint err,) = liquidateBorrowFresh(liquidator, borrower, repayAmount, cTokenCollateral);
         return err;
     }
 
-    function harnessReduceReservesFresh(uint amount) public returns (uint) {
+    function harnessReduceReservesFresh(uint amount) public virtual returns (uint) {
         return _reduceReservesFresh(amount);
     }
 
-    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public returns (uint) {
+    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public virtual returns (uint) {
         return _setReserveFactorFresh(newReserveFactorMantissa);
     }
 
-    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public returns (uint) {
+    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public virtual returns (uint) {
         return _setInterestRateModelFresh(newInterestRateModel);
     }
 
@@ -146,7 +146,7 @@ contract CErc20Harness is CErc20Immutable {
         interestRateModel = InterestRateModel(newInterestRateModelAddress);
     }
 
-    function harnessCallBorrowAllowed(uint amount) public returns (uint) {
+    function harnessCallBorrowAllowed(uint amount) public virtual returns (uint) {
         return comptroller.borrowAllowed(address(this), msg.sender, amount);
     }
 }
@@ -178,7 +178,7 @@ contract CErc20Scenario is CErc20Immutable {
         totalReserves = totalReserves_;
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         ComptrollerScenario comptrollerScenario = ComptrollerScenario(address(comptroller));
         return comptrollerScenario.blockNumber();
     }
@@ -203,7 +203,7 @@ contract CEvil is CErc20Scenario {
     decimals_,
     admin_) public {}
 
-    function evilSeize(CToken treasure, address liquidator, address borrower, uint seizeTokens) public returns (uint) {
+    function evilSeize(CToken treasure, address liquidator, address borrower, uint seizeTokens) public virtual returns (uint) {
         return treasure.seize(liquidator, borrower, seizeTokens);
     }
 }
@@ -250,7 +250,7 @@ contract CErc20DelegateHarness is CErc20Delegate {
 
     mapping (address => bool) public failTransferToAddresses;
 
-    function exchangeRateStoredInternal() internal view returns (MathError, uint) {
+    function exchangeRateStoredInternal() internal virtual view returns (MathError, uint) {
         if (harnessExchangeRateStored) {
             return (MathError.NO_ERROR, harnessExchangeRate);
         }
@@ -262,7 +262,7 @@ contract CErc20DelegateHarness is CErc20Delegate {
         return super.doTransferOut(to, amount);
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         return blockNumber;
     }
 
@@ -278,7 +278,7 @@ contract CErc20DelegateHarness is CErc20Delegate {
         blockNumber += blocks;
     }
 
-    function harnessSetBalance(address account, uint amount) external {
+    function harnessSetBalance(address account, uint amount) public {
         accountTokens[account] = amount;
     }
 
@@ -317,16 +317,16 @@ contract CErc20DelegateHarness is CErc20Delegate {
         failTransferToAddresses[_to] = _fail;
     }
 
-    function harnessMintFresh(address account, uint mintAmount) public returns (uint) {
+    function harnessMintFresh(address account, uint mintAmount) public virtual returns (uint) {
         (uint err,) = super.mintFresh(account, mintAmount);
         return err;
     }
 
-    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public returns (uint) {
+    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public virtual returns (uint) {
         return super.redeemFresh(account, cTokenAmount, underlyingAmount);
     }
 
-    function harnessAccountBorrows(address account) public view returns (uint principal, uint interestIndex) {
+    function harnessAccountBorrows(address account) public virtual view returns (uint principal, uint interestIndex) {
         BorrowSnapshot memory snapshot = accountBorrows[account];
         return (snapshot.principal, snapshot.interestIndex);
     }
@@ -339,29 +339,29 @@ contract CErc20DelegateHarness is CErc20Delegate {
         borrowIndex = borrowIndex_;
     }
 
-    function harnessBorrowFresh(address payable account, uint borrowAmount) public returns (uint) {
+    function harnessBorrowFresh(address payable account, uint borrowAmount) public virtual returns (uint) {
         return borrowFresh(account, borrowAmount);
     }
 
-    function harnessRepayBorrowFresh(address payer, address account, uint repayAmount) public returns (uint) {
+    function harnessRepayBorrowFresh(address payer, address account, uint repayAmount) public virtual returns (uint) {
         (uint err,) = repayBorrowFresh(payer, account, repayAmount);
         return err;
     }
 
-    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public returns (uint) {
+    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public virtual returns (uint) {
         (uint err,) = liquidateBorrowFresh(liquidator, borrower, repayAmount, cTokenCollateral);
         return err;
     }
 
-    function harnessReduceReservesFresh(uint amount) public returns (uint) {
+    function harnessReduceReservesFresh(uint amount) public virtual returns (uint) {
         return _reduceReservesFresh(amount);
     }
 
-    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public returns (uint) {
+    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public virtual returns (uint) {
         return _setReserveFactorFresh(newReserveFactorMantissa);
     }
 
-    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public returns (uint) {
+    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public virtual returns (uint) {
         return _setInterestRateModelFresh(newInterestRateModel);
     }
 
@@ -369,7 +369,7 @@ contract CErc20DelegateHarness is CErc20Delegate {
         interestRateModel = InterestRateModel(newInterestRateModelAddress);
     }
 
-    function harnessCallBorrowAllowed(uint amount) public returns (uint) {
+    function harnessCallBorrowAllowed(uint amount) public virtual returns (uint) {
         return comptroller.borrowAllowed(address(this), msg.sender, amount);
     }
 }
@@ -385,7 +385,7 @@ contract CErc20DelegateScenario is CErc20Delegate {
         totalReserves = totalReserves_;
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         ComptrollerScenario comptrollerScenario = ComptrollerScenario(address(comptroller));
         return comptrollerScenario.blockNumber();
     }
@@ -418,7 +418,7 @@ contract CDaiDelegateHarness is CDaiDelegate {
         accrualBlockNumber = _accrualblockNumber;
     }
 
-    function harnessSetBalance(address account, uint amount) external {
+    function harnessSetBalance(address account, uint amount) public {
         accountTokens[account] = amount;
     }
 
@@ -435,7 +435,7 @@ contract CDaiDelegateHarness is CDaiDelegate {
         totalSupply = totalSupply_;
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         return blockNumber;
     }
 }
@@ -449,7 +449,7 @@ contract CDaiDelegateScenario is CDaiDelegate {
         totalReserves = totalReserves_;
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         ComptrollerScenario comptrollerScenario = ComptrollerScenario(address(comptroller));
         return comptrollerScenario.blockNumber();
     }
@@ -459,55 +459,55 @@ contract CDaiDelegateMakerHarness is PotLike, VatLike, GemLike, DaiJoinLike {
     /* Pot */
 
     // exchangeRate
-    function chi() external view returns (uint) { return 1; }
+    function chi() public virtual view returns (uint) { return 1; }
 
     // totalSupply
-    function pie(address) external view returns (uint) { return 0; }
+    function pie(address) public virtual view returns (uint) { return 0; }
 
     // accrueInterest -> new exchangeRate
-    function drip() external returns (uint) { return 0; }
+    function drip() public virtual returns (uint) { return 0; }
 
     // mint
-    function join(uint) external {}
+    function join(uint) public {}
 
     // redeem
-    function exit(uint) external {}
+    function exit(uint) public {}
 
     /* Vat */
 
     // internal dai balance
-    function dai(address) external view returns (uint) { return 0; }
+    function dai(address) public virtual view returns (uint) { return 0; }
 
     // approve pot transfer
-    function hope(address) external {}
+    function hope(address) public {}
 
     /* Gem (Dai) */
 
     uint public totalSupply;
     mapping (address => mapping (address => uint)) public allowance;
     mapping (address => uint) public balanceOf;
-    function approve(address, uint) external {}
-    function transferFrom(address src, address dst, uint amount) external returns (bool) {
+    function approve(address, uint) public {}
+    function transferFrom(address src, address dst, uint amount) public virtual returns (bool) {
         balanceOf[src] -= amount;
         balanceOf[dst] += amount;
         return true;
     }
 
-    function harnessSetBalance(address account, uint amount) external {
+    function harnessSetBalance(address account, uint amount) public {
         balanceOf[account] = amount;
     }
 
     /* DaiJoin */
 
     // vat contract
-    function vat() external returns (VatLike) { return this; }
+    function vat() public virtual returns (VatLike) { return this; }
 
     // dai contract
-    function dai() external returns (GemLike) { return this; }
+    function dai() public virtual returns (GemLike) { return this; }
 
     // dai -> internal dai
-    function join(address, uint) external payable {}
+    function join(address, uint) public payable {}
 
     // internal dai transfer out
-    function exit(address, uint) external {}
+    function exit(address, uint) public {}
 }

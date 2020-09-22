@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 
 /**
@@ -22,12 +22,12 @@ contract Migrations {
     }
 
     /// @dev Amount of registered contracts
-    function length() external view returns (uint) {
+    function length() public virtual view returns (uint) {
         return names.length;
     }
 
     /// @dev Register a contract name and address
-    function register(bytes32 name, address addr ) external {
+    function register(bytes32 name, address addr ) public {
         contracts[name] = addr;
         names.push(name);
         emit Registered(name, addr);

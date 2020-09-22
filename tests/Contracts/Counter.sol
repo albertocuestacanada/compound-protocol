@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 contract Counter {
   uint public count;
@@ -18,7 +18,7 @@ contract Counter {
     count2 += amount2;
   }
 
-  function notZero() public view {
+  function notZero() public virtual view {
     require(count != 0, "Counter::notZero");
   }
 

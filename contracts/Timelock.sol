@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./SafeMath.sol";
 
@@ -31,7 +31,7 @@ contract Timelock {
         delay = delay_;
     }
 
-    function() external payable { }
+    fallback() external payable { }
 
     function setDelay(uint delay_) public {
         require(msg.sender == address(this), "Timelock::setDelay: Call must come from Timelock.");
@@ -57,7 +57,7 @@ contract Timelock {
         emit NewPendingAdmin(pendingAdmin);
     }
 
-    function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public returns (bytes32) {
+    function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public virtual returns (bytes32) {
         require(msg.sender == admin, "Timelock::queueTransaction: Call must come from admin.");
         require(eta >= getBlockTimestamp().add(delay), "Timelock::queueTransaction: Estimated execution block must satisfy delay.");
 
@@ -104,7 +104,7 @@ contract Timelock {
         return returnData;
     }
 
-    function getBlockTimestamp() internal view returns (uint) {
+    function getBlockTimestamp() internal virtual view returns (uint) {
         // solium-disable-next-line security/no-block-members
         return block.timestamp;
     }

@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./lib.sol";
 
@@ -39,15 +39,15 @@ import "./lib.sol";
 */
 
 contract VatLike {
-    function move(address,address,uint256) external;
-    function suck(address,address,uint256) external;
+    function move(address,address,uint256) public;
+    function suck(address,address,uint256) public;
 }
 
 contract Pot is LibNote {
     // --- Auth ---
     mapping (address => uint) public wards;
-    function rely(address guy) external note auth { wards[guy] = 1; }
-    function deny(address guy) external note auth { wards[guy] = 0; }
+    function rely(address guy) public note auth { wards[guy] = 1; }
+    function deny(address guy) public note auth { wards[guy] = 0; }
     modifier auth {
         require(wards[msg.sender] == 1, "Pot/not-authorized");
         _;
@@ -119,25 +119,25 @@ contract Pot is LibNote {
     }
 
     // --- Administration ---
-    function file(bytes32 what, uint256 data) external note auth {
+    function file(bytes32 what, uint256 data) public note auth {
         require(live == 1, "Pot/not-live");
         require(now == rho, "Pot/rho-not-updated");
         if (what == "dsr") dsr = data;
         else revert("Pot/file-unrecognized-param");
     }
 
-    function file(bytes32 what, address addr) external note auth {
+    function file(bytes32 what, address addr) public note auth {
         if (what == "vow") vow = addr;
         else revert("Pot/file-unrecognized-param");
     }
 
-    function cage() external note auth {
+    function cage() public note auth {
         live = 0;
         dsr = ONE;
     }
 
     // --- Savings Rate Accumulation ---
-    function drip() external note returns (uint tmp) {
+    function drip() public note returns (uint tmp) {
         require(now >= rho, "Pot/invalid-now");
         tmp = rmul(rpow(dsr, now - rho, ONE), chi);
         uint chi_ = sub(tmp, chi);
@@ -147,14 +147,14 @@ contract Pot is LibNote {
     }
 
     // --- Savings Dai Management ---
-    function join(uint wad) external note {
+    function join(uint wad) public note {
         require(now == rho, "Pot/rho-not-updated");
         pie[msg.sender] = add(pie[msg.sender], wad);
         Pie             = add(Pie,             wad);
         vat.move(msg.sender, address(this), mul(chi, wad));
     }
 
-    function exit(uint wad) external note {
+    function exit(uint wad) public note {
         pie[msg.sender] = sub(pie[msg.sender], wad);
         Pie             = sub(Pie,             wad);
         vat.move(address(this), msg.sender, mul(chi, wad));

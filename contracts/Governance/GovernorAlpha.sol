@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 contract GovernorAlpha {
@@ -51,7 +51,7 @@ contract GovernorAlpha {
         /// @notice The ordered list of function signatures to be called
         string[] signatures;
 
-        /// @notice The ordered list of calldata to be passed to each call
+        /// @notice The ordered list of memory to be passed to each call
         bytes[] calldatas;
 
         /// @notice The block at which voting begins: holders must delegate their votes prior to this block
@@ -133,7 +133,7 @@ contract GovernorAlpha {
         guardian = guardian_;
     }
 
-    function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint) {
+    function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public virtual returns (uint) {
         require(comp.getPriorVotes(msg.sender, sub256(block.number, 1)) > proposalThreshold(), "GovernorAlpha::propose: proposer votes below proposal threshold");
         require(targets.length == values.length && targets.length == signatures.length && targets.length == calldatas.length, "GovernorAlpha::propose: proposal function information arity mismatch");
         require(targets.length != 0, "GovernorAlpha::propose: must provide actions");
@@ -214,16 +214,16 @@ contract GovernorAlpha {
         emit ProposalCanceled(proposalId);
     }
 
-    function getActions(uint proposalId) public view returns (address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas) {
+    function getActions(uint proposalId) public virtual view returns (address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas) {
         Proposal storage p = proposals[proposalId];
         return (p.targets, p.values, p.signatures, p.calldatas);
     }
 
-    function getReceipt(uint proposalId, address voter) public view returns (Receipt memory) {
+    function getReceipt(uint proposalId, address voter) public virtual view returns (Receipt memory) {
         return proposals[proposalId].receipts[voter];
     }
 
-    function state(uint proposalId) public view returns (ProposalState) {
+    function state(uint proposalId) public virtual view returns (ProposalState) {
         require(proposalCount >= proposalId && proposalId > 0, "GovernorAlpha::state: invalid proposal id");
         Proposal storage proposal = proposals[proposalId];
         if (proposal.canceled) {
@@ -316,16 +316,16 @@ contract GovernorAlpha {
     }
 }
 
-interface TimelockInterface {
-    function delay() external view returns (uint);
-    function GRACE_PERIOD() external view returns (uint);
-    function acceptAdmin() external;
-    function queuedTransactions(bytes32 hash) external view returns (bool);
-    function queueTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external returns (bytes32);
-    function cancelTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external;
-    function executeTransaction(address target, uint value, string calldata signature, bytes calldata data, uint eta) external payable returns (bytes memory);
+abstract contract TimelockInterface {
+    function delay() public virtual view returns (uint);
+    function GRACE_PERIOD() public virtual view returns (uint);
+    function acceptAdmin() public virtual;
+    function queuedTransactions(bytes32 hash) public virtual view returns (bool);
+    function queueTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public virtual returns (bytes32);
+    function cancelTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public virtual;
+    function executeTransaction(address target, uint value, string memory signature, bytes memory data, uint eta) public virtual payable returns (bytes memory);
 }
 
-interface CompInterface {
-    function getPriorVotes(address account, uint blockNumber) external view returns (uint96);
+abstract contract CompInterface {
+    function getPriorVotes(address account, uint blockNumber) public virtual view returns (uint96);
 }

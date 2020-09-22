@@ -1,9 +1,9 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/Timelock.sol";
 
-interface Administered {
-    function _acceptAdmin() external returns (uint);
+abstract contract Administered {
+    function _acceptAdmin() public virtual returns (uint);
 }
 
 contract TimelockHarness is Timelock {

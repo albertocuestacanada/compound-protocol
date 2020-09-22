@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 contract ConstBase {
     uint public constant C = 1;
@@ -7,7 +7,7 @@ contract ConstBase {
         return 1;
     }
 
-    function ADD(uint a) public view returns (uint) {
+    function ADD(uint a) public virtual view returns (uint) {
         // tells compiler to accept view instead of pure
         if (false) {
             C + now;
@@ -15,7 +15,7 @@ contract ConstBase {
         return a + C;
     }
 
-    function add(uint a) public view returns (uint) {
+    function add(uint a) public virtual view returns (uint) {
         // tells compiler to accept view instead of pure
         if (false) {
             C + now;

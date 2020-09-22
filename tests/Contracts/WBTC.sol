@@ -2,19 +2,19 @@
  *Submitted for verification at Etherscan.io on 2018-11-24
 */
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 // File: openzeppelin-solidity/contracts/token/ERC20/ERC20Basic.sol
 
 /**
  * @title ERC20Basic
- * @dev Simpler version of ERC20 interface
+ * @dev Simpler version of ERC20 abstract contract
  * See https://github.com/ethereum/EIPs/issues/179
  */
 contract ERC20Basic {
-  function totalSupply() public view returns (uint256);
-  function balanceOf(address _who) public view returns (uint256);
-  function transfer(address _to, uint256 _value) public returns (bool);
+  function totalSupply() public virtual view returns (uint256);
+  function balanceOf(address _who) public virtual view returns (uint256);
+  function transfer(address _to, uint256 _value) public virtual returns (bool);
   event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
@@ -86,7 +86,7 @@ contract BasicToken is ERC20Basic {
   /**
   * @dev Total number of tokens in existence
   */
-  function totalSupply() public view returns (uint256) {
+  function totalSupply() public virtual view returns (uint256) {
     return totalSupply_;
   }
 
@@ -95,7 +95,7 @@ contract BasicToken is ERC20Basic {
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
-  function transfer(address _to, uint256 _value) public returns (bool) {
+  function transfer(address _to, uint256 _value) public virtual returns (bool) {
     require(_value <= balances[msg.sender]);
     require(_to != address(0));
 
@@ -110,7 +110,7 @@ contract BasicToken is ERC20Basic {
   * @param _owner The address to query the the balance of.
   * @return An uint256 representing the amount owned by the passed address.
   */
-  function balanceOf(address _owner) public view returns (uint256) {
+  function balanceOf(address _owner) public virtual view returns (uint256) {
     return balances[_owner];
   }
 
@@ -119,17 +119,17 @@ contract BasicToken is ERC20Basic {
 // File: openzeppelin-solidity/contracts/token/ERC20/ERC20.sol
 
 /**
- * @title ERC20 interface
+ * @title ERC20 abstract contract
  * @dev see https://github.com/ethereum/EIPs/issues/20
  */
 contract ERC20 is ERC20Basic {
   function allowance(address _owner, address _spender)
-    public view returns (uint256);
+    public virtual view returns (uint256);
 
   function transferFrom(address _from, address _to, uint256 _value)
-    public returns (bool);
+    public virtual returns (bool);
 
-  function approve(address _spender, uint256 _value) public returns (bool);
+  function approve(address _spender, uint256 _value) public virtual returns (bool);
   event Approval(
     address indexed owner,
     address indexed spender,
@@ -185,7 +185,7 @@ contract StandardToken is ERC20, BasicToken {
    * @param _spender The address which will spend the funds.
    * @param _value The amount of tokens to be spent.
    */
-  function approve(address _spender, uint256 _value) public returns (bool) {
+  function approve(address _spender, uint256 _value) public virtual returns (bool) {
     allowed[msg.sender][_spender] = _value;
     emit Approval(msg.sender, _spender, _value);
     return true;
@@ -632,7 +632,7 @@ contract CanReclaimToken is Ownable {
    * @dev Reclaim all ERC20Basic compatible tokens
    * @param _token ERC20Basic The address of the token contract
    */
-  function reclaimToken(ERC20Basic _token) external onlyOwner {
+  function reclaimToken(ERC20Basic _token) public onlyOwner {
     uint256 balance = _token.balanceOf(address(this));
     _token.safeTransfer(owner, balance);
   }

@@ -4,7 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   stats: 'verbose',
   devtool: 'source-map',
-  externals: {
+  publics: {
     file: '{}',
     fs: '{}',
     tls: '{}',

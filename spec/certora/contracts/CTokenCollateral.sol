@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../../contracts/CErc20Immutable.sol";
 import "../../../contracts/EIP20Interface.sol";
@@ -14,7 +14,7 @@ contract CTokenCollateral is CErc20Immutable {
                 address payable admin_) public CErc20Immutable(underlying_, comptroller_, interestRateModel_, initialExchangeRateMantissa_, name_, symbol_, decimals_, admin_) {
     }
 
-    function getCashOf(address account) public view returns (uint) {
+    function getCashOf(address account) public virtual view returns (uint) {
         return EIP20Interface(underlying).balanceOf(account);
     }
 }

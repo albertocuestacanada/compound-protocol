@@ -15,28 +15,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./lib.sol";
 
 contract GemLike {
-    function decimals() public view returns (uint);
-    function transfer(address,uint) external returns (bool);
-    function transferFrom(address,address,uint) external returns (bool);
+    function decimals() public virtual view returns (uint);
+    function transfer(address,uint) public virtual returns (bool);
+    function transferFrom(address,address,uint) public virtual returns (bool);
 }
 
 contract DSTokenLike {
-    function mint(address,uint) external;
-    function burn(address,uint) external;
+    function mint(address,uint) public;
+    function burn(address,uint) public;
 }
 
 contract VatLike {
-    function slip(bytes32,address,int) external;
-    function move(address,address,uint) external;
+    function slip(bytes32,address,int) public;
+    function move(address,address,uint) public;
 }
 
 /*
-    Here we provide *adapters* to connect the Vat to arbitrary external
+    Here we provide *adapters* to connect the Vat to arbitrary public
     token implementations, creating a bounded context for the Vat. The
     adapters here are provided as working examples:
 
@@ -45,7 +45,7 @@ contract VatLike {
 
       - `ETHJoin`: For native Ether.
 
-      - `DaiJoin`: For connecting internal Dai balances to an external
+      - `DaiJoin`: For connecting internal Dai balances to an public
                    `DSToken` implementation.
 
     In practice, adapter implementations will be varied and specific to
@@ -62,8 +62,8 @@ contract VatLike {
 contract GemJoin is LibNote {
     // --- Auth ---
     mapping (address => uint) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) public note auth { wards[usr] = 1; }
+    function deny(address usr) public note auth { wards[usr] = 0; }
     modifier auth {
         require(wards[msg.sender] == 1, "GemJoin/not-authorized");
         _;
@@ -83,16 +83,16 @@ contract GemJoin is LibNote {
         gem = GemLike(gem_);
         dec = gem.decimals();
     }
-    function cage() external note auth {
+    function cage() public note auth {
         live = 0;
     }
-    function join(address usr, uint wad) external note {
+    function join(address usr, uint wad) public note {
         require(live == 1, "GemJoin/not-live");
         require(int(wad) >= 0, "GemJoin/overflow");
         vat.slip(ilk, usr, int(wad));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
     }
-    function exit(address usr, uint wad) external note {
+    function exit(address usr, uint wad) public note {
         require(wad <= 2 ** 255, "GemJoin/overflow");
         vat.slip(ilk, msg.sender, -int(wad));
         require(gem.transfer(usr, wad), "GemJoin/failed-transfer");
@@ -102,8 +102,8 @@ contract GemJoin is LibNote {
 contract ETHJoin is LibNote {
     // --- Auth ---
     mapping (address => uint) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) public note auth { wards[usr] = 1; }
+    function deny(address usr) public note auth { wards[usr] = 0; }
     modifier auth {
         require(wards[msg.sender] == 1, "ETHJoin/not-authorized");
         _;
@@ -119,15 +119,15 @@ contract ETHJoin is LibNote {
         vat = VatLike(vat_);
         ilk = ilk_;
     }
-    function cage() external note auth {
+    function cage() public note auth {
         live = 0;
     }
-    function join(address usr) external payable note {
+    function join(address usr) public payable note {
         require(live == 1, "ETHJoin/not-live");
         require(int(msg.value) >= 0, "ETHJoin/overflow");
         vat.slip(ilk, usr, int(msg.value));
     }
-    function exit(address payable usr, uint wad) external note {
+    function exit(address payable usr, uint wad) public note {
         require(int(wad) >= 0, "ETHJoin/overflow");
         vat.slip(ilk, msg.sender, -int(wad));
         usr.transfer(wad);
@@ -137,8 +137,8 @@ contract ETHJoin is LibNote {
 contract DaiJoin is LibNote {
     // --- Auth ---
     mapping (address => uint) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) public note auth { wards[usr] = 1; }
+    function deny(address usr) public note auth { wards[usr] = 0; }
     modifier auth {
         require(wards[msg.sender] == 1, "DaiJoin/not-authorized");
         _;
@@ -154,18 +154,18 @@ contract DaiJoin is LibNote {
         vat = VatLike(vat_);
         dai = DSTokenLike(dai_);
     }
-    function cage() external note auth {
+    function cage() public note auth {
         live = 0;
     }
     uint constant ONE = 10 ** 27;
     function mul(uint x, uint y) internal pure returns (uint z) {
         require(y == 0 || (z = x * y) / y == x);
     }
-    function join(address usr, uint wad) external note {
+    function join(address usr, uint wad) public note {
         vat.move(address(this), usr, mul(ONE, wad));
         dai.burn(msg.sender, wad);
     }
-    function exit(address usr, uint wad) external note {
+    function exit(address usr, uint wad) public note {
         require(live == 1, "DaiJoin/not-live");
         vat.move(msg.sender, address(this), mul(ONE, wad));
         dai.mint(usr, wad);

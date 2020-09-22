@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "../CErc20.sol";
@@ -8,13 +8,13 @@ import "../EIP20Interface.sol";
 import "../Governance/GovernorAlpha.sol";
 import "../Governance/Comp.sol";
 
-interface ComptrollerLensInterface {
-    function markets(address) external view returns (bool, uint);
-    function oracle() external view returns (PriceOracle);
-    function getAccountLiquidity(address) external view returns (uint, uint, uint);
-    function getAssetsIn(address) external view returns (CToken[] memory);
-    function claimComp(address) external;
-    function compAccrued(address) external view returns (uint);
+abstract contract ComptrollerLensInterface {
+    function markets(address) public virtual view returns (bool, uint);
+    function oracle() public virtual view returns (PriceOracle);
+    function getAccountLiquidity(address) public virtual view returns (uint, uint, uint);
+    function getAssetsIn(address) public virtual view returns (CToken[] memory);
+    function claimComp(address) public virtual;
+    function compAccrued(address) public virtual view returns (uint);
 }
 
 contract CompoundLens {
@@ -35,7 +35,7 @@ contract CompoundLens {
         uint underlyingDecimals;
     }
 
-    function cTokenMetadata(CToken cToken) public returns (CTokenMetadata memory) {
+    function cTokenMetadata(CToken cToken) public virtual returns (CTokenMetadata memory) {
         uint exchangeRateCurrent = cToken.exchangeRateCurrent();
         ComptrollerLensInterface comptroller = ComptrollerLensInterface(address(cToken.comptroller()));
         (bool isListed, uint collateralFactorMantissa) = comptroller.markets(address(cToken));
@@ -69,7 +69,7 @@ contract CompoundLens {
         });
     }
 
-    function cTokenMetadataAll(CToken[] calldata cTokens) external returns (CTokenMetadata[] memory) {
+    function cTokenMetadataAll(CToken[] memory cTokens) public virtual returns (CTokenMetadata[] memory) {
         uint cTokenCount = cTokens.length;
         CTokenMetadata[] memory res = new CTokenMetadata[](cTokenCount);
         for (uint i = 0; i < cTokenCount; i++) {
@@ -87,7 +87,7 @@ contract CompoundLens {
         uint tokenAllowance;
     }
 
-    function cTokenBalances(CToken cToken, address payable account) public returns (CTokenBalances memory) {
+    function cTokenBalances(CToken cToken, address payable account) public virtual returns (CTokenBalances memory) {
         uint balanceOf = cToken.balanceOf(account);
         uint borrowBalanceCurrent = cToken.borrowBalanceCurrent(account);
         uint balanceOfUnderlying = cToken.balanceOfUnderlying(account);
@@ -114,7 +114,7 @@ contract CompoundLens {
         });
     }
 
-    function cTokenBalancesAll(CToken[] calldata cTokens, address payable account) external returns (CTokenBalances[] memory) {
+    function cTokenBalancesAll(CToken[] memory cTokens, address payable account) public virtual returns (CTokenBalances[] memory) {
         uint cTokenCount = cTokens.length;
         CTokenBalances[] memory res = new CTokenBalances[](cTokenCount);
         for (uint i = 0; i < cTokenCount; i++) {
@@ -128,7 +128,7 @@ contract CompoundLens {
         uint underlyingPrice;
     }
 
-    function cTokenUnderlyingPrice(CToken cToken) public returns (CTokenUnderlyingPrice memory) {
+    function cTokenUnderlyingPrice(CToken cToken) public virtual returns (CTokenUnderlyingPrice memory) {
         ComptrollerLensInterface comptroller = ComptrollerLensInterface(address(cToken.comptroller()));
         PriceOracle priceOracle = comptroller.oracle();
 
@@ -138,7 +138,7 @@ contract CompoundLens {
         });
     }
 
-    function cTokenUnderlyingPriceAll(CToken[] calldata cTokens) external returns (CTokenUnderlyingPrice[] memory) {
+    function cTokenUnderlyingPriceAll(CToken[] memory cTokens) public virtual returns (CTokenUnderlyingPrice[] memory) {
         uint cTokenCount = cTokens.length;
         CTokenUnderlyingPrice[] memory res = new CTokenUnderlyingPrice[](cTokenCount);
         for (uint i = 0; i < cTokenCount; i++) {
@@ -153,7 +153,7 @@ contract CompoundLens {
         uint shortfall;
     }
 
-    function getAccountLimits(ComptrollerLensInterface comptroller, address account) public returns (AccountLimits memory) {
+    function getAccountLimits(ComptrollerLensInterface comptroller, address account) public virtual returns (AccountLimits memory) {
         (uint errorCode, uint liquidity, uint shortfall) = comptroller.getAccountLiquidity(account);
         require(errorCode == 0);
 
@@ -171,7 +171,7 @@ contract CompoundLens {
         uint96 votes;
     }
 
-    function getGovReceipts(GovernorAlpha governor, address voter, uint[] memory proposalIds) public view returns (GovReceipt[] memory) {
+    function getGovReceipts(GovernorAlpha governor, address voter, uint[] memory proposalIds) public virtual view returns (GovReceipt[] memory) {
         uint proposalCount = proposalIds.length;
         GovReceipt[] memory res = new GovReceipt[](proposalCount);
         for (uint i = 0; i < proposalCount; i++) {
@@ -202,7 +202,7 @@ contract CompoundLens {
         bool executed;
     }
 
-    function setProposal(GovProposal memory res, GovernorAlpha governor, uint proposalId) internal view {
+    function setProposal(GovProposal memory res, GovernorAlpha governor, uint proposalId) internal virtual view {
         (
             ,
             address proposer,
@@ -225,7 +225,7 @@ contract CompoundLens {
         res.executed = executed;
     }
 
-    function getGovProposals(GovernorAlpha governor, uint[] calldata proposalIds) external view returns (GovProposal[] memory) {
+    function getGovProposals(GovernorAlpha governor, uint[] memory proposalIds) public virtual view returns (GovProposal[] memory) {
         GovProposal[] memory res = new GovProposal[](proposalIds.length);
         for (uint i = 0; i < proposalIds.length; i++) {
             (
@@ -260,7 +260,7 @@ contract CompoundLens {
         address delegate;
     }
 
-    function getCompBalanceMetadata(Comp comp, address account) external view returns (CompBalanceMetadata memory) {
+    function getCompBalanceMetadata(Comp comp, address account) public virtual view returns (CompBalanceMetadata memory) {
         return CompBalanceMetadata({
             balance: comp.balanceOf(account),
             votes: uint256(comp.getCurrentVotes(account)),
@@ -275,7 +275,7 @@ contract CompoundLens {
         uint allocated;
     }
 
-    function getCompBalanceMetadataExt(Comp comp, ComptrollerLensInterface comptroller, address account) external returns (CompBalanceMetadataExt memory) {
+    function getCompBalanceMetadataExt(Comp comp, ComptrollerLensInterface comptroller, address account) public virtual returns (CompBalanceMetadataExt memory) {
         uint balance = comp.balanceOf(account);
         comptroller.claimComp(account);
         uint newBalance = comp.balanceOf(account);
@@ -296,7 +296,7 @@ contract CompoundLens {
         uint votes;
     }
 
-    function getCompVotes(Comp comp, address account, uint32[] calldata blockNumbers) external view returns (CompVotes[] memory) {
+    function getCompVotes(Comp comp, address account, uint32[] memory blockNumbers) public virtual view returns (CompVotes[] memory) {
         CompVotes[] memory res = new CompVotes[](blockNumbers.length);
         for (uint i = 0; i < blockNumbers.length; i++) {
             res[i] = CompVotes({

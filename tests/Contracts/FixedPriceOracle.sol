@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/PriceOracle.sol";
 
@@ -9,12 +9,12 @@ contract FixedPriceOracle is PriceOracle {
         price = _price;
     }
 
-    function getUnderlyingPrice(CToken cToken) public view returns (uint) {
+    function getUnderlyingPrice(CToken cToken) public virtual view returns (uint) {
         cToken;
         return price;
     }
 
-    function assetPrices(address asset) public view returns (uint) {
+    function assetPrices(address asset) public virtual view returns (uint) {
         asset;
         return price;
     }

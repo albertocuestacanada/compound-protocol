@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./FaucetToken.sol";
 
@@ -15,11 +15,11 @@ contract EvilToken is FaucetToken {
         fail = true;
     }
 
-    function setFail(bool _fail) external {
+    function setFail(bool _fail) public {
         fail = _fail;
     }
 
-    function transfer(address dst, uint256 amount) external returns (bool) {
+    function transfer(address dst, uint256 amount) public virtual returns (bool) {
         if (fail) {
             return false;
         }
@@ -29,7 +29,7 @@ contract EvilToken is FaucetToken {
         return true;
     }
 
-    function transferFrom(address src, address dst, uint256 amount) external returns (bool) {
+    function transferFrom(address src, address dst, uint256 amount) public virtual returns (bool) {
         if (fail) {
             return false;
         }

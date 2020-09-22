@@ -1,24 +1,24 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/SafeMath.sol";
 
-interface ERC20Base {
+abstract contract ERC20Base {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
-    function totalSupply() external view returns (uint256);
-    function allowance(address owner, address spender) external view returns (uint256);
-    function approve(address spender, uint256 value) external returns (bool);
-    function balanceOf(address who) external view returns (uint256);
+    function totalSupply() public virtual view returns (uint256);
+    function allowance(address owner, address spender) public virtual view returns (uint256);
+    function approve(address spender, uint256 value) public virtual returns (bool);
+    function balanceOf(address who) public virtual view returns (uint256);
 }
 
 contract ERC20 is ERC20Base {
-    function transfer(address to, uint256 value) external returns (bool);
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
+    function transfer(address to, uint256 value) public virtual returns (bool);
+    function transferFrom(address from, address to, uint256 value) public virtual returns (bool);
 }
 
 contract ERC20NS is ERC20Base {
-    function transfer(address to, uint256 value) external;
-    function transferFrom(address from, address to, uint256 value) external;
+    function transfer(address to, uint256 value) public;
+    function transferFrom(address from, address to, uint256 value) public;
 }
 
 /**
@@ -44,14 +44,14 @@ contract StandardToken is ERC20 {
         decimals = _decimalUnits;
     }
 
-    function transfer(address dst, uint256 amount) external returns (bool) {
+    function transfer(address dst, uint256 amount) public virtual returns (bool) {
         balanceOf[msg.sender] = balanceOf[msg.sender].sub(amount, "Insufficient balance");
         balanceOf[dst] = balanceOf[dst].add(amount, "Balance overflow");
         emit Transfer(msg.sender, dst, amount);
         return true;
     }
 
-    function transferFrom(address src, address dst, uint256 amount) external returns (bool) {
+    function transferFrom(address src, address dst, uint256 amount) public virtual returns (bool) {
         allowance[src][msg.sender] = allowance[src][msg.sender].sub(amount, "Insufficient allowance");
         balanceOf[src] = balanceOf[src].sub(amount, "Insufficient balance");
         balanceOf[dst] = balanceOf[dst].add(amount, "Balance overflow");
@@ -59,7 +59,7 @@ contract StandardToken is ERC20 {
         return true;
     }
 
-    function approve(address _spender, uint256 amount) external returns (bool) {
+    function approve(address _spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][_spender] = amount;
         emit Approval(msg.sender, _spender, amount);
         return true;
@@ -89,20 +89,20 @@ contract NonStandardToken is ERC20NS {
         decimals = _decimalUnits;
     }
 
-    function transfer(address dst, uint256 amount) external {
+    function transfer(address dst, uint256 amount) public {
         balanceOf[msg.sender] = balanceOf[msg.sender].sub(amount, "Insufficient balance");
         balanceOf[dst] = balanceOf[dst].add(amount, "Balance overflow");
         emit Transfer(msg.sender, dst, amount);
     }
 
-    function transferFrom(address src, address dst, uint256 amount) external {
+    function transferFrom(address src, address dst, uint256 amount) public {
         allowance[src][msg.sender] = allowance[src][msg.sender].sub(amount, "Insufficient allowance");
         balanceOf[src] = balanceOf[src].sub(amount, "Insufficient balance");
         balanceOf[dst] = balanceOf[dst].add(amount, "Balance overflow");
         emit Transfer(src, dst, amount);
     }
 
-    function approve(address _spender, uint256 amount) external returns (bool) {
+    function approve(address _spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][_spender] = amount;
         emit Approval(msg.sender, _spender, amount);
         return true;
@@ -131,7 +131,7 @@ contract ERC20Harness is StandardToken {
         balanceOf[_account] = _amount;
     }
 
-    function transfer(address dst, uint256 amount) external returns (bool success) {
+    function transfer(address dst, uint256 amount) public virtual returns (bool success) {
         // Added for testing purposes
         if (failTransferToAddresses[dst]) {
             return false;
@@ -142,7 +142,7 @@ contract ERC20Harness is StandardToken {
         return true;
     }
 
-    function transferFrom(address src, address dst, uint256 amount) external returns (bool success) {
+    function transferFrom(address src, address dst, uint256 amount) public virtual returns (bool success) {
         // Added for testing purposes
         if (failTransferFromAddresses[src]) {
             return false;

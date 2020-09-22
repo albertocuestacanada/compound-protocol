@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/ComptrollerG3.sol";
 
@@ -12,15 +12,15 @@ contract ComptrollerScenarioG3 is ComptrollerG3 {
         compAddress = compAddress_;
     }
 
-    function getCompAddress() public view returns (address) {
+    function getCompAddress() public virtual view returns (address) {
         return compAddress;
     }
 
-    function membershipLength(CToken cToken) public view returns (uint) {
+    function membershipLength(CToken cToken) public virtual view returns (uint) {
         return accountAssets[address(cToken)].length;
     }
 
-    function fastForward(uint blocks) public returns (uint) {
+    function fastForward(uint blocks) public virtual returns (uint) {
         blockNumber += blocks;
 
         return blockNumber;
@@ -30,11 +30,11 @@ contract ComptrollerScenarioG3 is ComptrollerG3 {
         blockNumber = number;
     }
 
-    function getBlockNumber() public view returns (uint) {
+    function getBlockNumber() public virtual view returns (uint) {
         return blockNumber;
     }
 
-    function getCompMarkets() public view returns (address[] memory) {
+    function getCompMarkets() public virtual view returns (address[] memory) {
         uint m = allMarkets.length;
         uint n = 0;
         for (uint i = 0; i < m; i++) {

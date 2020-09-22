@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 contract ComptrollerErrorReporter {
     enum Error {
@@ -54,7 +54,7 @@ contract ComptrollerErrorReporter {
     /**
       * @dev use this when reporting a known error from the money market or a non-upgradeable collaborator
       */
-    function fail(Error err, FailureInfo info) internal returns (uint) {
+    function fail(Error err, FailureInfo info) internal virtual returns (uint) {
         emit Failure(uint(err), uint(info), 0);
 
         return uint(err);
@@ -63,7 +63,7 @@ contract ComptrollerErrorReporter {
     /**
       * @dev use this when reporting an opaque error from an upgradeable collaborator contract
       */
-    function failOpaque(Error err, FailureInfo info, uint opaqueError) internal returns (uint) {
+    function failOpaque(Error err, FailureInfo info, uint opaqueError) internal virtual returns (uint) {
         emit Failure(uint(err), uint(info), opaqueError);
 
         return uint(err);
@@ -190,7 +190,7 @@ contract TokenErrorReporter {
     /**
       * @dev use this when reporting a known error from the money market or a non-upgradeable collaborator
       */
-    function fail(Error err, FailureInfo info) internal returns (uint) {
+    function fail(Error err, FailureInfo info) internal virtual returns (uint) {
         emit Failure(uint(err), uint(info), 0);
 
         return uint(err);
@@ -199,7 +199,7 @@ contract TokenErrorReporter {
     /**
       * @dev use this when reporting an opaque error from an upgradeable collaborator contract
       */
-    function failOpaque(Error err, FailureInfo info, uint opaqueError) internal returns (uint) {
+    function failOpaque(Error err, FailureInfo info, uint opaqueError) internal virtual returns (uint) {
         emit Failure(uint(err), uint(info), opaqueError);
 
         return uint(err);

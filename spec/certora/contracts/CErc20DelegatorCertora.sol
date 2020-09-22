@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../../contracts/CErc20Delegator.sol";
 import "../../../contracts/EIP20Interface.sol";
@@ -22,67 +22,67 @@ contract CErc20DelegatorCertora is CErc20Delegator {
         interestRateModel; // touch for Certora slot deduction
     }
 
-    function balanceOfInOther(address account) public view returns (uint) {
+    function balanceOfInOther(address account) public virtual view returns (uint) {
         return otherToken.balanceOf(account);
     }
 
-    function borrowBalanceStoredInOther(address account) public view returns (uint) {
+    function borrowBalanceStoredInOther(address account) public virtual view returns (uint) {
         return otherToken.borrowBalanceStored(account);
     }
 
-    function exchangeRateStoredInOther() public view returns (uint) {
+    function exchangeRateStoredInOther() public virtual view returns (uint) {
         return otherToken.exchangeRateStored();
     }
 
-    function getCashInOther() public view returns (uint) {
+    function getCashInOther() public virtual view returns (uint) {
         return otherToken.getCash();
     }
 
-    function getCashOf(address account) public view returns (uint) {
+    function getCashOf(address account) public virtual view returns (uint) {
         return EIP20Interface(underlying).balanceOf(account);
     }
 
-    function getCashOfInOther(address account) public view returns (uint) {
+    function getCashOfInOther(address account) public virtual view returns (uint) {
         return otherToken.getCashOf(account);
     }
 
-    function totalSupplyInOther() public view returns (uint) {
+    function totalSupplyInOther() public virtual view returns (uint) {
         return otherToken.totalSupply();
     }
 
-    function totalBorrowsInOther() public view returns (uint) {
+    function totalBorrowsInOther() public virtual view returns (uint) {
         return otherToken.totalBorrows();
     }
 
-    function totalReservesInOther() public view returns (uint) {
+    function totalReservesInOther() public virtual view returns (uint) {
         return otherToken.totalReserves();
     }
 
-    function underlyingInOther() public view returns (address) {
+    function underlyingInOther() public virtual view returns (address) {
         return otherToken.underlying();
     }
 
-    function mintFreshPub(address minter, uint mintAmount) public returns (uint) {
+    function mintFreshPub(address minter, uint mintAmount) public virtual returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_mintFreshPub(address,uint256)", minter, mintAmount));
         return abi.decode(data, (uint));
     }
 
-    function redeemFreshPub(address payable redeemer, uint redeemTokens, uint redeemUnderlying) public returns (uint) {
+    function redeemFreshPub(address payable redeemer, uint redeemTokens, uint redeemUnderlying) public virtual returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_redeemFreshPub(address,uint256,uint256)", redeemer, redeemTokens, redeemUnderlying));
         return abi.decode(data, (uint));
     }
 
-    function borrowFreshPub(address payable borrower, uint borrowAmount) public returns (uint) {
+    function borrowFreshPub(address payable borrower, uint borrowAmount) public virtual returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_borrowFreshPub(address,uint256)", borrower, borrowAmount));
         return abi.decode(data, (uint));
     }
 
-    function repayBorrowFreshPub(address payer, address borrower, uint repayAmount) public returns (uint) {
+    function repayBorrowFreshPub(address payer, address borrower, uint repayAmount) public virtual returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_repayBorrowFreshPub(address,address,uint256)", payer, borrower, repayAmount));
         return abi.decode(data, (uint));
     }
 
-    function liquidateBorrowFreshPub(address liquidator, address borrower, uint repayAmount) public returns (uint) {
+    function liquidateBorrowFreshPub(address liquidator, address borrower, uint repayAmount) public virtual returns (uint) {
         bytes memory data = delegateToImplementation(abi.encodeWithSignature("_liquidateBorrowFreshPub(address,address,uint256)", liquidator, borrower, repayAmount));
         return abi.decode(data, (uint));
     }

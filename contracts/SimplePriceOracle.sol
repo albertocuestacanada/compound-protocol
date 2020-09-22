@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./PriceOracle.sol";
 import "./CErc20.sol";
@@ -7,7 +7,7 @@ contract SimplePriceOracle is PriceOracle {
     mapping(address => uint) prices;
     event PricePosted(address asset, uint previousPriceMantissa, uint requestedPriceMantissa, uint newPriceMantissa);
 
-    function getUnderlyingPrice(CToken cToken) public view returns (uint) {
+    function getUnderlyingPrice(CToken cToken) public virtual override view returns (uint) {
         if (compareStrings(cToken.symbol(), "cETH")) {
             return 1e18;
         } else {
@@ -26,8 +26,8 @@ contract SimplePriceOracle is PriceOracle {
         prices[asset] = price;
     }
 
-    // v1 price oracle interface for use as backing of proxy
-    function assetPrices(address asset) external view returns (uint) {
+    // v1 price oracle abstract contract for use as backing of proxy
+    function assetPrices(address asset) public virtual view returns (uint) {
         return prices[asset];
     }
 

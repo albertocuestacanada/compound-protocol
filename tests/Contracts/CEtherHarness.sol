@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/CEther.sol";
 import "./ComptrollerScenario.sol";
@@ -30,14 +30,14 @@ contract CEtherHarness is CEther {
         return super.doTransferOut(to, amount);
     }
 
-    function exchangeRateStoredInternal() internal view returns (MathError, uint) {
+    function exchangeRateStoredInternal() internal virtual view returns (MathError, uint) {
         if (harnessExchangeRate != 0) {
             return (MathError.NO_ERROR, harnessExchangeRate);
         }
         return super.exchangeRateStoredInternal();
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         return blockNumber;
     }
 
@@ -49,7 +49,7 @@ contract CEtherHarness is CEther {
         blockNumber += blocks;
     }
 
-    function harnessSetBalance(address account, uint amount) external {
+    function harnessSetBalance(address account, uint amount) public {
         accountTokens[account] = amount;
     }
 
@@ -83,16 +83,16 @@ contract CEtherHarness is CEther {
         failTransferToAddresses[_to] = _fail;
     }
 
-    function harnessMintFresh(address account, uint mintAmount) public returns (uint) {
+    function harnessMintFresh(address account, uint mintAmount) public virtual returns (uint) {
         (uint err,) = super.mintFresh(account, mintAmount);
         return err;
     }
 
-    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public returns (uint) {
+    function harnessRedeemFresh(address payable account, uint cTokenAmount, uint underlyingAmount) public virtual returns (uint) {
         return super.redeemFresh(account, cTokenAmount, underlyingAmount);
     }
 
-    function harnessAccountBorrows(address account) public view returns (uint principal, uint interestIndex) {
+    function harnessAccountBorrows(address account) public virtual view returns (uint principal, uint interestIndex) {
         BorrowSnapshot memory snapshot = accountBorrows[account];
         return (snapshot.principal, snapshot.interestIndex);
     }
@@ -105,7 +105,7 @@ contract CEtherHarness is CEther {
         borrowIndex = borrowIndex_;
     }
 
-    function harnessBorrowFresh(address payable account, uint borrowAmount) public returns (uint) {
+    function harnessBorrowFresh(address payable account, uint borrowAmount) public virtual returns (uint) {
         return borrowFresh(account, borrowAmount);
     }
 
@@ -114,12 +114,12 @@ contract CEtherHarness is CEther {
         return err;
     }
 
-    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public returns (uint) {
+    function harnessLiquidateBorrowFresh(address liquidator, address borrower, uint repayAmount, CToken cTokenCollateral) public virtual returns (uint) {
         (uint err,) = liquidateBorrowFresh(liquidator, borrower, repayAmount, cTokenCollateral);
         return err;
     }
 
-    function harnessReduceReservesFresh(uint amount) public returns (uint) {
+    function harnessReduceReservesFresh(uint amount) public virtual returns (uint) {
         return _reduceReservesFresh(amount);
     }
 
@@ -127,11 +127,11 @@ contract CEtherHarness is CEther {
         totalReserves = amount;
     }
 
-    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public returns (uint) {
+    function harnessSetReserveFactorFresh(uint newReserveFactorMantissa) public virtual returns (uint) {
         return _setReserveFactorFresh(newReserveFactorMantissa);
     }
 
-    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public returns (uint) {
+    function harnessSetInterestRateModelFresh(InterestRateModel newInterestRateModel) public virtual returns (uint) {
         return _setInterestRateModelFresh(newInterestRateModel);
     }
 
@@ -151,7 +151,7 @@ contract CEtherHarness is CEther {
         return doTransferOut(to, amount);
     }
 
-    function harnessRequireNoError(uint error, string calldata message) external pure {
+    function harnessRequireNoError(uint error, string memory message) public pure {
         requireNoError(error, message);
     }
 }
@@ -187,7 +187,7 @@ contract CEtherScenario is CEther {
         // no-op
     }
 
-    function getBlockNumber() internal view returns (uint) {
+    function getBlockNumber() internal virtual view returns (uint) {
         ComptrollerScenario comptrollerScenario = ComptrollerScenario(address(comptroller));
         return comptrollerScenario.blockNumber();
     }

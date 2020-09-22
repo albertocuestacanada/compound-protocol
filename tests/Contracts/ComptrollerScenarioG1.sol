@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/ComptrollerG1.sol";
 import "../../contracts/PriceOracle.sol";
@@ -11,11 +11,11 @@ contract ComptrollerScenarioG1 is ComptrollerG1 {
 
     constructor() ComptrollerG1() public {}
 
-    function membershipLength(CToken cToken) public view returns (uint) {
+    function membershipLength(CToken cToken) public virtual view returns (uint) {
         return accountAssets[address(cToken)].length;
     }
 
-    function fastForward(uint blocks) public returns (uint) {
+    function fastForward(uint blocks) public virtual returns (uint) {
         blockNumber += blocks;
 
         return blockNumber;
@@ -38,7 +38,7 @@ contract ComptrollerScenarioG1 is ComptrollerG1 {
         address account,
         address cTokenModify,
         uint redeemTokens,
-        uint borrowAmount) public view returns (uint, uint, uint) {
+        uint borrowAmount) public virtual view returns (uint, uint, uint) {
         (Error err, uint liquidity, uint shortfall) =
             super.getHypotheticalAccountLiquidityInternal(account, CToken(cTokenModify), redeemTokens, borrowAmount);
         return (uint(err), liquidity, shortfall);

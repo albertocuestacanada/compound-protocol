@@ -11,7 +11,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 contract LibNote {
     event LogNote(
@@ -25,14 +25,14 @@ contract LibNote {
     modifier note {
         _;
         assembly {
-            // log an 'anonymous' event with a constant 6 words of calldata
+            // log an 'anonymous' event with a constant 6 words of memory
             // and four indexed topics: selector, caller, arg1 and arg2
             let mark := msize                         // end of memory ensures zero
             mstore(0x40, add(mark, 288))              // update free memory pointer
             mstore(mark, 0x20)                        // bytes type data offset
             mstore(add(mark, 0x20), 224)              // bytes size (padded)
             calldatacopy(add(mark, 0x40), 0, 224)     // bytes payload
-            log4(mark, 288,                           // calldata
+            log4(mark, 288,                           // memory
                  shl(224, shr(224, calldataload(0))), // msg.sig
                  caller,                              // msg.sender
                  calldataload(4),                     // arg1

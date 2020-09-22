@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/EIP20NonStandardInterface.sol";
 
@@ -27,7 +27,7 @@ contract Fauceteer {
                 }
                 case 32 {                      // This is a compliant ERC-20
                     returndatacopy(0, 0, 32)
-                    success := mload(0)        // Set `success = returndata` of external call
+                    success := mload(0)        // Set `success = returndata` of public call
                 }
                 default {                      // This is an excessively non-compliant ERC-20, revert.
                     revert(0, 0)

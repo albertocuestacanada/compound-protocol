@@ -1,16 +1,16 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/Comptroller.sol";
 import "../../contracts/PriceOracle.sol";
 
 contract ComptrollerKovan is Comptroller {
-  function getCompAddress() public view returns (address) {
+  function getCompAddress() public virtual view returns (address) {
     return 0x61460874a7196d6a22D1eE4922473664b3E95270;
   }
 }
 
 contract ComptrollerRopsten is Comptroller {
-  function getCompAddress() public view returns (address) {
+  function getCompAddress() public virtual view returns (address) {
     return 0x1Fe16De955718CFAb7A44605458AB023838C2793;
   }
 }
@@ -43,7 +43,7 @@ contract ComptrollerHarness is Comptroller {
         compAddress = compAddress_;
     }
 
-    function getCompAddress() public view returns (address) {
+    function getCompAddress() public virtual view returns (address) {
         return compAddress;
     }
 
@@ -75,11 +75,11 @@ contract ComptrollerHarness is Comptroller {
         distributeSupplierComp(cToken, supplier, false);
     }
 
-    function harnessTransferComp(address user, uint userAccrued, uint threshold) public returns (uint) {
+    function harnessTransferComp(address user, uint userAccrued, uint threshold) public virtual returns (uint) {
         return transferComp(user, userAccrued, threshold);
     }
 
-    function harnessFastForward(uint blocks) public returns (uint) {
+    function harnessFastForward(uint blocks) public virtual returns (uint) {
         blockNumber += blocks;
         return blockNumber;
     }
@@ -88,11 +88,11 @@ contract ComptrollerHarness is Comptroller {
         blockNumber = number;
     }
 
-    function getBlockNumber() public view returns (uint) {
+    function getBlockNumber() public virtual view returns (uint) {
         return blockNumber;
     }
 
-    function getCompMarkets() public view returns (address[] memory) {
+    function getCompMarkets() public virtual view returns (address[] memory) {
         uint m = allMarkets.length;
         uint n = 0;
         for (uint i = 0; i < m; i++) {
@@ -149,27 +149,27 @@ contract BoolComptroller is ComptrollerInterface {
 
     /*** Assets You Are In ***/
 
-    function enterMarkets(address[] calldata _cTokens) external returns (uint[] memory) {
+    function enterMarkets(address[] memory _cTokens) public virtual returns (uint[] memory) {
         _cTokens;
         uint[] memory ret;
         return ret;
     }
 
-    function exitMarket(address _cToken) external returns (uint) {
+    function exitMarket(address _cToken) public virtual returns (uint) {
         _cToken;
         return noError;
     }
 
     /*** Policy Hooks ***/
 
-    function mintAllowed(address _cToken, address _minter, uint _mintAmount) public returns (uint) {
+    function mintAllowed(address _cToken, address _minter, uint _mintAmount) public virtual returns (uint) {
         _cToken;
         _minter;
         _mintAmount;
         return allowMint ? noError : opaqueError;
     }
 
-    function mintVerify(address _cToken, address _minter, uint _mintAmount, uint _mintTokens) external {
+    function mintVerify(address _cToken, address _minter, uint _mintAmount, uint _mintTokens) public {
         _cToken;
         _minter;
         _mintAmount;
@@ -177,14 +177,14 @@ contract BoolComptroller is ComptrollerInterface {
         require(verifyMint, "mintVerify rejected mint");
     }
 
-    function redeemAllowed(address _cToken, address _redeemer, uint _redeemTokens) public returns (uint) {
+    function redeemAllowed(address _cToken, address _redeemer, uint _redeemTokens) public virtual returns (uint) {
         _cToken;
         _redeemer;
         _redeemTokens;
         return allowRedeem ? noError : opaqueError;
     }
 
-    function redeemVerify(address _cToken, address _redeemer, uint _redeemAmount, uint _redeemTokens) external {
+    function redeemVerify(address _cToken, address _redeemer, uint _redeemAmount, uint _redeemTokens) public {
         _cToken;
         _redeemer;
         _redeemAmount;
@@ -192,14 +192,14 @@ contract BoolComptroller is ComptrollerInterface {
         require(verifyRedeem, "redeemVerify rejected redeem");
     }
 
-    function borrowAllowed(address _cToken, address _borrower, uint _borrowAmount) public returns (uint) {
+    function borrowAllowed(address _cToken, address _borrower, uint _borrowAmount) public virtual returns (uint) {
         _cToken;
         _borrower;
         _borrowAmount;
         return allowBorrow ? noError : opaqueError;
     }
 
-    function borrowVerify(address _cToken, address _borrower, uint _borrowAmount) external {
+    function borrowVerify(address _cToken, address _borrower, uint _borrowAmount) public {
         _cToken;
         _borrower;
         _borrowAmount;
@@ -210,7 +210,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cToken,
         address _payer,
         address _borrower,
-        uint _repayAmount) public returns (uint) {
+        uint _repayAmount) public virtual returns (uint) {
         _cToken;
         _payer;
         _borrower;
@@ -223,7 +223,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _payer,
         address _borrower,
         uint _repayAmount,
-        uint _borrowerIndex) external {
+        uint _borrowerIndex) public {
         _cToken;
         _payer;
         _borrower;
@@ -237,7 +237,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cTokenCollateral,
         address _liquidator,
         address _borrower,
-        uint _repayAmount) public returns (uint) {
+        uint _repayAmount) public virtual returns (uint) {
         _cTokenBorrowed;
         _cTokenCollateral;
         _liquidator;
@@ -252,7 +252,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _liquidator,
         address _borrower,
         uint _repayAmount,
-        uint _seizeTokens) external {
+        uint _seizeTokens) public {
         _cTokenBorrowed;
         _cTokenCollateral;
         _liquidator;
@@ -267,7 +267,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cTokenBorrowed,
         address _borrower,
         address _liquidator,
-        uint _seizeTokens) public returns (uint) {
+        uint _seizeTokens) public virtual returns (uint) {
         _cTokenCollateral;
         _cTokenBorrowed;
         _liquidator;
@@ -281,7 +281,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cTokenBorrowed,
         address _liquidator,
         address _borrower,
-        uint _seizeTokens) external {
+        uint _seizeTokens) public {
         _cTokenCollateral;
         _cTokenBorrowed;
         _liquidator;
@@ -294,7 +294,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cToken,
         address _src,
         address _dst,
-        uint _transferTokens) public returns (uint) {
+        uint _transferTokens) public virtual returns (uint) {
         _cToken;
         _src;
         _dst;
@@ -306,7 +306,7 @@ contract BoolComptroller is ComptrollerInterface {
         address _cToken,
         address _src,
         address _dst,
-        uint _transferTokens) external {
+        uint _transferTokens) public {
         _cToken;
         _src;
         _dst;
@@ -319,7 +319,7 @@ contract BoolComptroller is ComptrollerInterface {
     function liquidateCalculateSeizeTokens(
         address _cTokenBorrowed,
         address _cTokenCollateral,
-        uint _repayAmount) public view returns (uint, uint) {
+        uint _repayAmount) public virtual view returns (uint, uint) {
         _cTokenBorrowed;
         _cTokenCollateral;
         _repayAmount;

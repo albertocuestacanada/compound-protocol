@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 /**
  * @title Reservoir Contract
@@ -42,7 +42,7 @@ contract Reservoir {
     * @dev Note: this will only drip up to the amount of tokens available.
     * @return The amount of tokens dripped in this call
     */
-  function drip() public returns (uint) {
+  function drip() public virtual returns (uint) {
     // First, read storage into memory
     EIP20Interface token_ = token;
     uint reservoirBalance_ = token_.balanceOf(address(this)); // TODO: Verify this is a static call

@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./CErc20.sol";
 
@@ -17,7 +17,7 @@ contract CErc20Delegate is CErc20, CDelegateInterface {
      * @notice Called by the delegator on a delegate to initialize it for duty
      * @param data The encoded bytes data for any initialization
      */
-    function _becomeImplementation(bytes memory data) public {
+    function _becomeImplementation(bytes memory data) public virtual override {
         // Shh -- currently unused
         data;
 
@@ -32,7 +32,7 @@ contract CErc20Delegate is CErc20, CDelegateInterface {
     /**
      * @notice Called by the delegator on a delegate to forfeit its responsibility
      */
-    function _resignImplementation() public {
+    function _resignImplementation() public virtual override {
         // Shh -- we don't ever want this hook to be marked pure
         if (false) {
             implementation = address(0);

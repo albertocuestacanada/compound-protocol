@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/ComptrollerG2.sol";
 
@@ -7,7 +7,7 @@ contract ComptrollerScenarioG2 is ComptrollerG2 {
 
     constructor() ComptrollerG2() public {}
 
-    function fastForward(uint blocks) public returns (uint) {
+    function fastForward(uint blocks) public virtual returns (uint) {
         blockNumber += blocks;
         return blockNumber;
     }

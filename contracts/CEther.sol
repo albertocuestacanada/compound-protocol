@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "./CToken.sol";
 
@@ -41,7 +41,7 @@ contract CEther is CToken {
      * @notice Sender supplies assets into the market and receives cTokens in exchange
      * @dev Reverts upon any failure
      */
-    function mint() external payable {
+    function mint() public payable {
         (uint err,) = mintInternal(msg.value);
         requireNoError(err, "mint failed");
     }
@@ -52,7 +52,7 @@ contract CEther is CToken {
      * @param redeemTokens The number of cTokens to redeem into underlying
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function redeem(uint redeemTokens) external returns (uint) {
+    function redeem(uint redeemTokens) public virtual returns (uint) {
         return redeemInternal(redeemTokens);
     }
 
@@ -62,7 +62,7 @@ contract CEther is CToken {
      * @param redeemAmount The amount of underlying to redeem
      * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
      */
-    function redeemUnderlying(uint redeemAmount) external returns (uint) {
+    function redeemUnderlying(uint redeemAmount) public virtual returns (uint) {
         return redeemUnderlyingInternal(redeemAmount);
     }
 
@@ -71,7 +71,7 @@ contract CEther is CToken {
       * @param borrowAmount The amount of the underlying asset to borrow
       * @return uint 0=success, otherwise a failure (see ErrorReporter.sol for details)
       */
-    function borrow(uint borrowAmount) external returns (uint) {
+    function borrow(uint borrowAmount) public virtual returns (uint) {
         return borrowInternal(borrowAmount);
     }
 
@@ -79,7 +79,7 @@ contract CEther is CToken {
      * @notice Sender repays their own borrow
      * @dev Reverts upon any failure
      */
-    function repayBorrow() external payable {
+    function repayBorrow() public payable {
         (uint err,) = repayBorrowInternal(msg.value);
         requireNoError(err, "repayBorrow failed");
     }
@@ -89,7 +89,7 @@ contract CEther is CToken {
      * @dev Reverts upon any failure
      * @param borrower the account with the debt being payed off
      */
-    function repayBorrowBehalf(address borrower) external payable {
+    function repayBorrowBehalf(address borrower) public payable {
         (uint err,) = repayBorrowBehalfInternal(borrower, msg.value);
         requireNoError(err, "repayBorrowBehalf failed");
     }
@@ -101,7 +101,7 @@ contract CEther is CToken {
      * @param borrower The borrower of this cToken to be liquidated
      * @param cTokenCollateral The market in which to seize collateral from the borrower
      */
-    function liquidateBorrow(address borrower, CToken cTokenCollateral) external payable {
+    function liquidateBorrow(address borrower, CToken cTokenCollateral) public payable {
         (uint err,) = liquidateBorrowInternal(borrower, msg.value, cTokenCollateral);
         requireNoError(err, "liquidateBorrow failed");
     }
@@ -109,7 +109,7 @@ contract CEther is CToken {
     /**
      * @notice Send Ether to CEther to mint
      */
-    function () external payable {
+    fallback() external payable {
         (uint err,) = mintInternal(msg.value);
         requireNoError(err, "mint failed");
     }
@@ -121,7 +121,7 @@ contract CEther is CToken {
      * @dev This excludes the value of the current message, if any
      * @return The quantity of Ether owned by this contract
      */
-    function getCashPrior() internal view returns (uint) {
+    function getCashPrior() internal virtual override view returns (uint) {
         (MathError err, uint startingBalance) = subUInt(address(this).balance, msg.value);
         require(err == MathError.NO_ERROR);
         return startingBalance;
@@ -133,14 +133,14 @@ contract CEther is CToken {
      * @param amount Amount of Ether being sent
      * @return The actual amount of Ether transferred
      */
-    function doTransferIn(address from, uint amount) internal returns (uint) {
+    function doTransferIn(address from, uint amount) internal virtual override returns (uint) {
         // Sanity checks
         require(msg.sender == from, "sender mismatch");
         require(msg.value == amount, "value mismatch");
         return amount;
     }
 
-    function doTransferOut(address payable to, uint amount) internal {
+    function doTransferOut(address payable to, uint amount) internal virtual override {
         /* Send the Ether, with minimal gas and revert on failure */
         to.transfer(amount);
     }

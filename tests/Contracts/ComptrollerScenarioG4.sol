@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.6.0;
 
 import "../../contracts/ComptrollerG4.sol";
 
@@ -7,7 +7,7 @@ contract ComptrollerScenarioG4 is ComptrollerG4 {
 
     constructor() ComptrollerG4() public {}
 
-    function fastForward(uint blocks) public returns (uint) {
+    function fastForward(uint blocks) public virtual returns (uint) {
         blockNumber += blocks;
         return blockNumber;
     }
@@ -16,7 +16,7 @@ contract ComptrollerScenarioG4 is ComptrollerG4 {
         blockNumber = number;
     }
 
-    function membershipLength(CToken cToken) public view returns (uint) {
+    function membershipLength(CToken cToken) public virtual view returns (uint) {
         return accountAssets[address(cToken)].length;
     }
 
