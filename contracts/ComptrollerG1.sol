@@ -95,7 +95,7 @@ contract ComptrollerG1 is ComptrollerV1Storage, ComptrollerInterface, Comptrolle
     // liquidationIncentiveMantissa must be no greater than this value
     uint constant liquidationIncentiveMaxMantissa = 15e17; // 1.5
 
-    constructor() public virtual override {
+    constructor() public {
         admin = msg.sender;
     }
 
